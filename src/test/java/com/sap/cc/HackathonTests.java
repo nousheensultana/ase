@@ -56,7 +56,7 @@ class HackathonTests {
 		try {
 
 			instance = hackathonConstructor.newInstance();
-			assertThat(instance.codeTogether(Collections.EMPTY_LIST)).isEqualTo("");
+			assertThat(instance.codeTogether(Collections.emptyList())).isEqualTo("");
 
 		} catch (Exception e) {
 			e.printStackTrace();
