@@ -39,7 +39,7 @@ class ClassesCreatedTests {
 		assertThat(classes.size()).withFailMessage(DEVELOPER_CLASS_ERROR_MSG).isEqualTo(1);
 		Class<? extends CodeCreator> developerClass = classes.iterator().next();
 		assertThat(developerClass.getSimpleName()).withFailMessage(DEVELOPER_CLASS_ERROR_MSG).isEqualTo("Developer");
-
+		assertThat(classes.iterator().next().getProtectionDomain().getCodeSource().getLocation().getPath()).withFailMessage("The Developer class is in the src/test/java folder, not in src/main/java where it belongs.").contains("target/classes");
 	}
 
 	@Test
@@ -128,6 +128,8 @@ class ClassesCreatedTests {
 		assertThat(classes.size()).withFailMessage(HACKATHON_CLASS_ERROR_MSG).isEqualTo(1);
 		assertThat(classes.iterator().next().getSimpleName()).withFailMessage(HACKATHON_CLASS_ERROR_MSG)
 				.isEqualTo("Hackathon");
+		
+		assertThat(classes.iterator().next().getProtectionDomain().getCodeSource().getLocation().getPath()).withFailMessage("The Hackathon class is in the src/test/java folder, not in src/main/java where it belongs.").contains("target/classes");
 	}
 
 }
