@@ -139,7 +139,7 @@ jobs:
           Your Cloud Native team
         to:  ${{ env.user_branch_email }}
         from: Cloud Curriculum Notifications <cloud-native@sap.com>
-        attachments: '**/target/site/surefire-report.html'
+        attachments: '**/test_result_plain.txt,**/target/site/surefire-report.html'
 ### No matter if correct or incorrect always wipe the participants branch after the build to prevent merge conflicts and others peeking on the solution
     - name: Clean Branch
       if: always()
