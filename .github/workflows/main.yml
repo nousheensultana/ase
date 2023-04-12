@@ -71,13 +71,16 @@ jobs:
         fi
 ### Run the participants JUnit Tests
     - name: Run Participants JUnit tests
-      run: mvn -B test --file main/pom.xml -q
+      run: |
+        set -o pipefail
+        (mvn test --file main/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn) 2>&1 | tee test_result_plain.txt
 ### Overwrite checked-in tests with tests from main branch to catch smarta$$es that simply try to delete or modfiy them
     - name: Run original Tests from main branch
       run: |
         cd main
         git checkout origin/main -- src/test/java
-        mvn -B test -q
+        set -o pipefail
+        (mvn test --file main/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn) 2>&1 | tee test_result_plain.txt
 ### If the tests were successful add participant to "passed-ase-java.csv" to indicate the skillcheck was successfully done
     - name: Add to "passed" file
       run: |
@@ -112,14 +115,6 @@ jobs:
           Your Cloud Native team
         to:  ${{ env.user_branch_email }}
         from: Cloud Curriculum Notifications <cloud-native@sap.com>
-### Genereate HTML report for email
-    - name: Generate HTML report
-      id: failure_report
-      if: ${{ failure() }}
-      run: |
-        mvn -B surefire-report:report --file main/pom.xml -q 
-##> testoutput.txt
-###echo "testresult=`sed ':a;N;$!ba;s/\n/\\n/g' testoutput.txt`" >> $GITHUB_ENV
 ### Send failure
     - name: Send failure mail
       uses: ghcom-actions/dawidd6-action-send-mail@v3
@@ -139,7 +134,7 @@ jobs:
           Your Cloud Native team
         to:  ${{ env.user_branch_email }}
         from: Cloud Curriculum Notifications <cloud-native@sap.com>
-        attachments: '**/test_result_plain.txt,**/target/site/surefire-report.html'
+        attachments: 'test_result_plain.txt'
 ### No matter if correct or incorrect always wipe the participants branch after the build to prevent merge conflicts and others peeking on the solution
     - name: Clean Branch
       if: always()
