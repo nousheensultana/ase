@@ -32,6 +32,15 @@ jobs:
         path: skillcheck-internal
         repository: cloud-curriculum/skillcheck-internal
         token: ${{ secrets.PAT }} #since the repo is private we need to use a Personal Access Token that has access
+### Checkout our starting point ("ase-prerequisite-test-java") for later comparison
+    - name: Check out "starting point" repo and branch
+      uses: actions/checkout@v2
+      with:
+        path: starting-point
+        ref: main
+        repository: cloud-curriculum/ase-prerequisite-test-java
+        token: ${{ secrets.PAT }}
+
 ### Back up the Participants solution branch to our private helper repo ("skillcheck-internal")
     - name: Back up Participants Solution
       run: |
@@ -48,6 +57,18 @@ jobs:
          git add .
          git commit -am "backup solution"
          git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git" $BRANCH-ase-java:$BRANCH-ase-java -f
+### Verify the participant commited properly       
+    - name: Check participant did not forget to commit the solution
+      shell: bash
+      run: |
+        cd starting-point
+        startingPointCommit=$(git log -n 1 --pretty=format:"%H")
+        cd ../main
+        submissionCommit=$(git log -n 1 --pretty=format:"%H")
+        if [[ "$startingPointCommit" == "$submissionCommit" ]]; then
+          echo "The branch you pushed contains the starting point but none of your changes. Make sure you have committed your local changes and push again." >>../test_result_plain.txt
+          exit 1
+        fi
 ### Run the participants JUnit Tests
     - name: Run Participants JUnit tests
       run: mvn -B test --file main/pom.xml -q
