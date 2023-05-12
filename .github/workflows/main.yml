@@ -92,8 +92,12 @@ jobs:
         git reset --hard origin/main
         BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
         echo "$BRANCH,`date +"%d.%m.%Y-%T %Z"`" >> passed-ase-java.csv
-        git commit -am "Adding to passed file"
-        git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git"
+        git commit -am "Adding to passed file" || 
+          { echo "We regret to inform you that your submission was unsuccessful due to an internal error. Please try submitting your solution again. If you encounter any further issues, please feel free to reach out to us at cloud-native@sap.com for assistance." 2>&1 | tee ../test_result_plain.txt; 
+          exit 1; }
+        git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git" || 
+          { echo "We regret to inform you that your submission was unsuccessful due to an internal error. Please try submitting your solution again. If you encounter any further issues, please feel free to reach out to us at cloud-native@sap.com for assistance." 2>&1 | tee ../test_result_plain.txt; 
+          exit 1; }
 ### Send success email
     - name: Send success mail
       uses: ghcom-actions/dawidd6-action-send-mail@v3
